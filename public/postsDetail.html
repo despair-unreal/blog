@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>文章</title>
+		<link rel="stylesheet" type="text/css" href="css/all.css" />
+		<link rel="icon" href="favicon.ico">
+		<script src="js/jquery.min.js"></script>
+		<script src="js/v2.6.10/vue.min.js"></script>
+		<script src="js/httpVueLoader.js"></script>
+		<script src="js/axios.min.js"></script>
+	</head>
+	<body>
+		<div id="web_bg"></div>
+		<div id="page">
+			<header v-if="isHeader1" class="post-bg" id="page-header" :style="'background-image:url('+postsList.articleCover+')'">
+				<nav-component></nav-component>
+				<sidebar-component></sidebar-component>
+				<search-component></search-component>
+				<div id="post-info">
+					<h1 class="post-title">{{postsList.title}}</h1>
+					<div id="post-meta">
+						<div class="meta-firstline">
+							<span class="post-meta-date">
+								<i class="fa-fw post-meta-icon fas fa-history"></i>
+								<span class="post-meta-label">更新于</span>
+								<time :datetime="postsList.updateTime" :title="'更新于 '+postsList.updateTime"
+									style="display: inline;">3个月前</time>
+							</span>
+							<span class="post-meta-categories"><span class="post-meta-separator">|</span>
+								<i class="fas fa-inbox fa-fw post-meta-icon"></i>
+								<a class="post-meta-categories" :href="'categoryDetail.html?type=c1&id='+postsList.c1id+'&name='+postsList.c1name">{{postsList.c1name}}</a>
+								<i class="fas fa-angle-right post-meta-separator"></i>
+								<i class="fas fa-inbox fa-fw post-meta-icon"></i>
+								<a class="post-meta-categories" :href="'categoryDetail.html?type=c2&id='+postsList.c2id+'&name='+postsList.c2name">{{postsList.c2name}}</a>
+							</span>
+						</div>
+						<div class="meta-secondline"></div>
+					</div>
+				</div>
+			</header>
+			<header v-if="isHeader2" class="not-top-img" id="page-header">
+				<nav-component></nav-component>
+				<sidebar-component></sidebar-component>
+				<search-component></search-component>
+			</header>
+			<main class="layout" id="content-inner">
+				<div id="post">
+					<div id="post-info" v-if="isHeader3">
+						<h1 class="post-title">{{postsList.title}}</h1>
+						<div id="post-meta">
+							<div class="meta-firstline">
+								<span class="post-meta-date">
+									<i class="fa-fw post-meta-icon fas fa-history"></i>
+									<span class="post-meta-label">更新于</span>
+									<time :datetime="postsList.updateTime" :title="'更新于 '+postsList.updateTime"
+										style="display: inline;">3个月前</time>
+								</span>
+								<span class="post-meta-categories"><span class="post-meta-separator">|</span>
+									<i class="fas fa-inbox fa-fw post-meta-icon"></i>
+									<a class="post-meta-categories" :href="'categoryDetail.html?type=c1&id='+postsList.c1id+'&name='+postsList.c1name">{{postsList.c1name}}</a>
+									<i class="fas fa-angle-right post-meta-separator"></i>
+									<i class="fas fa-inbox fa-fw post-meta-icon"></i>
+									<a class="post-meta-categories" :href="'categoryDetail.html?type=c2&id='+postsList.c2id+'&name='+postsList.c2name">{{postsList.c2name}}</a>
+								</span>
+							</div>
+							<div class="meta-secondline"></div>
+						</div>
+					</div>
+					<article class="post-content" id="article-container" v-html="postContent">
+						{{postContent}}
+					</article>
+					<div class="tag_share">
+						<div class="post-meta__tag-list">
+							<a v-for="t in tagname" class="post-meta__tags" :href="'categoryDetail.html?type=c3&id='+t.id+'&name='+t.tagname">{{t.tagname}}</a>
+						</div>
+					</div>
+					<nav class="pagination-post" id="pagination">
+						<div v-if="prevPost.id!=undefined" class="prev-post">
+							<a :href="'postsDetail.html?id='+prevPost.id">
+								<img v-if="prevPost.articleCover!=null" class="prev-cover" :src="prevPost.articleCover"
+									alt="cover of previous post">
+								<div class="pagination-info">
+									<div class="label">上一篇</div>
+									<div class="prev_info">{{prevPost.title}}</div>
+								</div>
+							</a>
+						</div>
+						<div v-if="nextPost.id!=undefined" class="next-post">
+							<a :href="'postsDetail.html?id='+nextPost.id">
+								<img v-if="nextPost.articleCover!=null" class="next-cover entered loaded"
+									:src="nextPost.articleCover" data-lazy-src="#">
+								<div class="pagination-info">
+									<div class="label">下一篇</div>
+									<div class="next_info">{{nextPost.title}}</div>
+								</div>
+							</a>
+						</div>
+					</nav><br><br>
+					<div id="post-comment">
+						<div class="comment-wrap">
+							<div>
+								<div id="twikoo" class="twikoo">
+									<div class="tk-comments">
+										<div id="tk-submit">
+											<form target="iframe" method="post" enctype="multipart/form-data"
+												action="/commentSubmit">
+												<input type="hidden" name="pid" :value="pid" />
+												<commentsubmit-component :loginstatus="loginstatus"
+													:userinfo="userinfo"></commentsubmit-component>
+											</form>
+											<iframe name="iframe" id="form" style="display:none"></iframe>
+										</div>
+										<div class="tk-comments-container">
+											<div class="tk-comments-title">
+												<span class="tk-comments-count">
+													<span>{{commentList.length}}</span>
+													<span> 条评论</span>
+												</span>
+												<span>
+													<span class="tk-icon">
+														<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+															<path
+																d="M440.65 12.57l4 82.77A247.16 247.16 0 0 0 255.83 8C134.73 8 33.91 94.92 12.29 209.82A12 12 0 0 0 24.09 224h49.05a12 12 0 0 0 11.67-9.26 175.91 175.91 0 0 1 317-56.94l-101.46-4.86a12 12 0 0 0-12.57 12v47.41a12 12 0 0 0 12 12H500a12 12 0 0 0 12-12V12a12 12 0 0 0-12-12h-47.37a12 12 0 0 0-11.98 12.57zM255.83 432a175.61 175.61 0 0 1-146-77.8l101.8 4.87a12 12 0 0 0 12.57-12v-47.4a12 12 0 0 0-12-12H12a12 12 0 0 0-12 12V500a12 12 0 0 0 12 12h47.35a12 12 0 0 0 12-12.6l-4.15-82.57A247.17 247.17 0 0 0 255.83 504c121.11 0 221.93-86.92 243.55-201.82a12 12 0 0 0-11.8-14.18h-49.05a12 12 0 0 0-11.67 9.26A175.86 175.86 0 0 1 255.83 432z">
+															</path>
+														</svg>
+													</span>
+												</span>
+											</div>
+											<div id="tk-comment">
+												<comment-component v-for="(item,index) in commentList"
+													:key="'p'+item.id" :toid="'p'+item.id" v-bind="item"
+													:loginstatus="loginstatus" :userinfo="userinfo"
+													:actionurl="actionUrl"></comment-component>
+											</div>
+											<div class="el-loading-mask" style="display: none;">
+
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="aside-content" id="aside-content">
+					<div class="sticky_layout">
+						<div class="card-widget" id="card-toc">
+							<div class="item-headline">
+								<i class="fas fa-stream"></i>
+								<span>目录</span>
+							</div>
+							<div class="toc-content" :progress-percentage="progressPercentage">
+								<ol class="toc">
+									<li class="toc-item" v-for="(i,index) in tocList">
+										<a class="toc-link" @click="onto(i.id,index)">
+											<span class="toc-number">{{index+1}}.</span>
+											<span class="toc-text">{{i.title}}</span>
+										</a>
+										<ol class="toc-child">
+											<li class="toc-item" v-for="(j,k) in i.child">
+												<a class="toc-link" @click="onto(j.id,k)">
+													<span class="toc-number">{{index+1}}.{{k+1}}</span>
+													<span class="toc-text">{{j.title}}</span>
+												</a>
+											</li>
+										</ol>
+									</li>
+								</ol>
+							</div>
+						</div>
+					</div>
+				</div>
+			</main>
+		</div>
+	</body>
+	<script type="module" src="js/postDetailVue.js"></script>
+</html>

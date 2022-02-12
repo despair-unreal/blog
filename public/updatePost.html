@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>修改文章</title>
+		<link rel="stylesheet" type="text/css" href="css/all.css" />
+		<link rel="stylesheet" type="text/css" href="css/edit.css" />
+		<link rel="icon" href="favicon.ico">
+		<script src="js/jquery.min.js"></script>
+		<script src="js/v2.6.10/vue.min.js"></script>
+		<script src="js/axios.min.js"></script>
+		<script src="js/httpVueLoader.js"></script>
+		<script src="./wangeditor/dist/wangEditor.min.js"></script>
+		<script src="js/edit.js"></script>
+	</head>
+	<body>
+		<div id="web_bg"></div>
+		<div id="page1">
+			<header class="not-top-img" id="page-header">
+				<nav-component></nav-component>
+				<sidebar-component></sidebar-component>
+				<search-component></search-component>
+			</header>
+			<main>
+				<form id="post-form" enctype="multipart/form-data" method="post" action="/postUpdate">
+					<input id="postId" type="hidden" name="id" :value="id" />
+					<div id="toolbar-wrap" style="">
+						<div id="toolbar-container" class="toolbar"></div>
+					</div>
+					<div id="content-container" class="text">
+						<div id="article-title-container">
+							<input type="text" name="articleTitle" v-model="articleTitle" required="required" id="article-title" placeholder="请输入标题" />
+						</div>
+						<div id="text-container"></div>
+						<div id="article-other">
+							<span>发布设置</span>
+							<div class="article-other-item">
+								<label for="article-cover">添加封面</label>
+								<label class="uploadPicture-wrapper" style="display: none;"><input type="file" accept="image/jpeg"
+										name="articleCover" id="article-cover" style="display: none;" />
+									<div class="upload-picture">
+										<svg class="Zi Zi--Plus upload-picture-svg" fill="currentColor"
+											viewBox="0 0 24 24" width="14" height="14">
+											<path
+												d="M13.491 10.488s-.012-5.387 0-5.998c-.037-1.987-3.035-1.987-2.997 0-.038 1.912 0 5.998 0 5.998H4.499c-1.999.01-1.999 3.009 0 3.009s5.995-.01 5.995-.01v5.999c0 2.019 3.006 2.019 2.997 0-.01-2.019 0-5.998 0-5.998s3.996.009 6.004.009c2.008 0 2.008-3-.01-3.009h-5.994z"
+												fill-rule="evenodd"></path>
+										</svg>
+										添加文章封面
+									</div>
+								</label>
+								<div class="picture-view-wrapper" style="display: inline-block;">
+									<img alt="封面图" :src="postList.articleCover" class="picture-view">
+									<div class="change-btn">
+										<button title="更换" id="change-cover" type="button" class="Button">更换</button>
+										<div class="change-line"></div>
+										<button title="删除" id="change-delete" type="button" class="Button">删除</button>
+									</div>
+								</div>
+								<div class="upload-picture-tips">图片上传格式支持 JPG</div>
+							</div>
+							<div class="article-other-item">
+								<label for="article-type1">文章类别</label>
+								<div class="article-other-wrap">
+									<select v-model="type1" name="articleType1" id="article-type1">
+										<option v-for="t in type1List" :value="t.id">{{t.name}}</option>
+									</select>
+									<button id="add-c1" type="button">新增类别1</button>
+									<select v-model="type2" name="articleType2" id="article-type2">
+										<option v-for="t in type2List" :value="t.id">{{t.c2name}}</option>
+									</select>
+									<button id="add-c2" @click="getType1" type="button">新增类别2</button>
+								</div>
+							</div>
+							<div class="article-other-item">
+								<label for="article-tags">文章标签</label>
+								<div class="article-other-wrap">
+									<select v-model="tags[index]" class="article-tags-select" name="articleTags" v-for="(i,index) in tagSelectItems">
+										<option v-for="t in tagsList" :value="t.id">{{t.name}}</option>
+									</select>
+									<button type="button" id="remove-tags"><span style="font-size: 18px;">-
+										</span>移除标签</button>
+									<button @click="addTagSelect" type="button" id="add-tags"><span
+											style="font-size: 18px;">+
+										</span>添加标签</button>
+									<button id="new-tags" type="button">新增标签</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div id="subimit-container">
+						<div id="subimit-wrap">
+							<button class="btn-wrap">
+								<div class="to-top">回到顶部</div><svg class="Zi Zi--ArrowUp" font-size="16px"
+									fill="currentColor" viewBox="0 0 24 24" width="1.2em" height="1.2em">
+									<path
+										d="M12 11l-3.716 3.782a.758.758 0 0 1-1.064 0 .738.738 0 0 1 0-1.052l4.249-4.512a.758.758 0 0 1 1.064 0l4.246 4.512a.738.738 0 0 1 0 1.052.757.757 0 0 1-1.063 0L12.002 11z"
+										fill-rule="evenodd"></path>
+								</svg>
+							</button>
+							<div id="text-num">
+								<p>正文字数：{{num}}字</p>
+							</div>
+							<input id="post-content" name="postContent" type="hidden" v-model="postContent" />
+							<button id="sumit-post" @click="sumitPost" type="submit" class="subimit-btn" disabled="disabled">提交修改</button>
+						</div>
+					</div>
+					<div id="add">
+						<div id="c1"><label>新增类别1：</label>
+							<input v-model="cname1" type="text" name="inputc1" id="input-c1" />
+							<button @click="addc1" type="button">增加</button>
+						</div>
+						<div id="c2"><label>新增类别2：</label>
+							<select name="articleType1" id="article-type1" disabled="disabled">
+								<option :value="typeId">{{typeName}}</option>
+							</select>
+							<input v-model="cname2" type="text" name="inputc2" id="input-c2" />
+							<button @click="addc2" type="button">增加</button>
+						</div>
+						<div id="t1"><label>新增标签：</label>
+							<input v-model="tname" type="text" name="inputt1" id="input-tags" />
+							<button @click="addtag" type="button">增加</button>
+						</div>
+						<div id="add-mask"></div>
+					</div>
+				</div>
+			</main>
+		</div>
+	</body>
+	<script type="module" src="js/updatePostVue.js"></script>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>归档</title>
+		<link rel="stylesheet" type="text/css" href="css/all.css" />
+		<link href="css/board.css" rel="stylesheet">
+		<link rel="icon" href="favicon.ico">
+		<script src="js/jquery.min.js"></script>
+		<script src="js/v2.6.10/vue.min.js"></script>
+		<script src="js/httpVueLoader.js"></script>
+		<script src="js/axios.min.js"></script>
+	</head>
+	<body>
+		<div id="web_bg"></div>
+		<div id="page">
+			<header class="not-top-img" id="page-header">
+				<nav-component></nav-component>
+				<sidebar-component></sidebar-component>
+				<search-component></search-component>
+			</header>
+			<main class="layout" id="content-inner">
+				<div id="category">
+					<div class="article-sort-title"><span v-if="type=='c1'||type=='c2'">分类</span><span v-if="type=='c3'">标签</span> - {{name}}</div>
+					<div class="article-sort">
+						<div class="article-sort-item year">2021</div>
+						<div v-for="(item,index) in List" class="article-sort-item">
+							<a v-if="item.articleCover!=null" class="article-sort-item-img" :href="'postsDetail.html?id='+item.id" :title="item.title">
+								<img :src="item.articleCover" :data-lazy-src="item.articleCover" :alt="item.title" data-ll-status="loaded" class="entered loaded"></a>
+							<div class="article-sort-item-info">
+								<div class="article-sort-item-time">
+									<i class="far fa-calendar-alt"></i>
+									<time class="post-meta-date-created" :datetime="'发表于 '+item.insertTime"
+										:title="'发表于 '+item.insertTime">{{item.insertTime}}</time>
+								</div>
+								<a class="article-sort-item-title" :href="'postsDetail.html?id='+item.id"
+									:title="item.title">{{item.title}}</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<aside-component id="aside-content"></aside-component>
+			</main>
+		</div>
+	</body>
+	<script type="module">
+		import * as nav from './js/nav.js';
+		var pageHeaderVm = new Vue({
+			el: '#page-header',
+			components: {
+				'nav-component': httpVueLoader('./components/nav.vue'),
+				'sidebar-component': httpVueLoader('./components/sidebar.vue'),
+				'search-component': httpVueLoader('./components/search.vue'),
+			},
+			updated: function() {
+				nav.navjs();
+				nav.sidebarjs();
+			}
+		});
+		var asideVm = new Vue({
+			el: '#aside-content',
+			components: {
+				'aside-component': httpVueLoader('./components/aside.vue'),
+			}
+		});
+		var categoryVm = new Vue({
+			el: '#category',
+			data: {
+				id: null,
+				name: null,
+				type: null,
+				List:[]
+			},
+			beforeMount: function() {
+				var searchURL = window.location.search;
+				searchURL = searchURL.substring(1, searchURL.length);
+				var targetPageId = searchURL.split("&")[1].split("=")[1];
+				var targetPageName = searchURL.split("&")[2].split("=")[1];
+				var targetPageType = searchURL.split("&")[0].split("=")[1];
+				this.id = targetPageId;
+				this.name = decodeURIComponent(targetPageName);
+				this.type = targetPageType;
+				if(this.type=='c1'||this.type=='c2')
+					document.getElementsByTagName("title")[0].innerText = "分类 - " +this.name;
+				else if(this.type=='c3')
+					document.getElementsByTagName("title")[0].innerText = "标签 - " +this.name;
+			},
+			mounted: function() {
+				if(this.type == "c1"){
+					axios
+						.get('/categoryDetail1', {
+							params: {
+								id: this.id
+							}
+						})
+						.then(response => {
+							this.List = response.data;
+							console.log(this.List);
+						})
+						.catch(function(error) { // 请求失败处理
+							console.log(error);
+						});
+				}else if(this.type == "c2"){
+					axios
+						.get('/categoryDetail2', {
+							params: {
+								id: this.id
+							}
+						})
+						.then(response => {
+							this.List = response.data;
+						})
+						.catch(function(error) { // 请求失败处理
+							console.log(error);
+						});
+				}else if(this.type == "c3"){
+					axios
+						.get('/categoryDetail3', {
+							params: {
+								id: this.id
+							}
+						})
+						.then(response => {
+							this.List = response.data;
+						})
+						.catch(function(error) { // 请求失败处理
+							console.log(error);
+						});
+				}
+			}
+		});
+	</script>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>主页</title>
+		<link rel="stylesheet" type="text/css" href="css/all.css" />
+		<link rel="stylesheet" type="text/css" href="css/index.css" />
+		<link rel="icon" href="favicon.ico">
+		<script src="js/jquery.min.js"></script>
+		<script src="js/v2.6.10/vue.min.js"></script>
+		<script src="js/httpVueLoader.js"></script>
+		<script src="js/axios.min.js"></script>
+		<script src="js/index.js" type="module" charset="utf-8"></script>
+	</head>
+	<body>
+		<div id="page">
+			<section>
+				<div id="section1">
+					<div id="sentence">
+						<p id="sentence_first">我曾说过这样的话，它或许恰如其分：先前的文明都会变成一堆废墟，最后化为灰烬，但精神将在灰烬的上空恒久地徘徊。</p>
+						<p id="sentence_second">
+							"Ich habe einmal，und
+							vielleicht mit Recht，gesagt : Aus der früheren Kultur wird
+							ein Trümmerhaufen und am Schluß ein Aschenhaufen werden，aber
+							es werden Geister über der Asche schweben."
+						</p>
+						<div id="author">
+							<p id="sentence_third">维特根斯坦</p>
+							<p id="sentence_fourth">
+								Ludwig Josef Johann Wittgenstein
+							</p>
+						</div>
+					</div>
+					<div id="scroll">
+						<span id="scroll_line"></span>
+						<span>滑动滚轮</span>
+					</div>
+					<script src="js/start.js" type="text/javascript" charset="utf-8"></script>
+				</div>
+			</section>
+			<section>
+				<header id="page-header">
+					<nav-component id="nav"></nav-component>
+					<sidebar-component id="sidebar"></sidebar-component>
+					<search-component></search-component>
+				</header>
+				<div id="site-name">
+					<a>BAI</a><br />
+					<a>KONG</a>
+				</div>
+				<div class="site-info">
+					<div class="site-subtitle">
+						你好啊！我是<a class="info-link" href="#" data-pjax-state="">Bk</a>一个小小的计算机攻城狮，喜欢<a class="info-link"
+							href="#" data-pjax-state="">游戏</a>
+						<a class="info-link" href="#" data-pjax-state="">睡觉</a>&<a class="info-link" rel="noopener"
+							href="#">技术</a>.
+					</div>
+					<h1 class="site-title">
+						01 - Info
+						<a>Next</a>
+					</h1>
+				</div>
+				<div class="site-info">
+					<div class="site-subtitle">
+						正在寻觅前端开发相关岗位，欢迎大佬们查看我的<a class="info-link" href="#">简历</a>和<a class="info-link" href="#">项目</a>.
+					</div>
+					<h1 class="site-title">
+						02 - Job
+						<a>Next</a>
+					</h1>
+				</div>
+				<div class="site-info">
+					<div class="site-subtitle">
+						欢迎关注我的<a class="info-link" href="#">社交账号</a>查阅我的<a class="info-link" href="#">技术笔记</a>.
+					</div>
+					<h1 class="site-title">
+						03 - SNS
+						<a>Next</a>
+					</h1>
+				</div>
+				<div class="site-info">
+					<div class="site-subtitle">
+						本网站正在建设中，欢迎<a class="info-link" href="#">反馈</a>错误. 如果本站内容帮助到了你，求<a class="info-link"
+							href="#">赞赏</a>.
+					</div>
+					<h1 class="site-title">
+						04 - More
+						<a>Next</a>
+					</h1>
+				</div>
+				<div id="postnews" class="pined-pages">
+					<p>LATEST NEWS</p>
+					<div class="page top">
+						<div class="description">
+							<a :href="'postsDetail.html?id='+id1" rel="noopener">
+								{{title1}}
+							</a>
+							<br>
+						</div>
+						<img v-if="articleCover1==null" class="entered loaded" src="images/404.jpg">
+						<img v-if="articleCover1!=null" class="entered loaded" :src="articleCover1">
+					</div>
+					<div class="page mid">
+						<div class="description">
+							<a :href="'postsDetail.html?id='+id2" rel="noopener">
+								{{title2}}
+							</a>
+							<br>
+						</div>
+						<img v-if="articleCover2==null" class="entered loaded" src="images/404.jpg">
+						<img v-if="articleCover2!=null" class="entered loaded" :src="articleCover2">
+					</div>
+					<div class="page bot">
+						<div class="description">
+							<a :href="'postsDetail.html?id='+id3" rel="noopener">
+								{{title3}}
+							</a>
+							<br>
+						</div>
+						<img v-if="articleCover3==null" class="entered loaded" src="images/404.jpg">
+						<img v-if="articleCover3!=null" class="entered loaded" :src="articleCover3">
+					</div>
+				</div>
+				<div id="carousel-indictors">
+					<span class="carousel-dot active"></span>
+					<span class="carousel-dot"></span>
+					<span class="carousel-dot"></span>
+					<span class="carousel-dot"></span>
+				</div>
+				<div id="container"></div>
+				<div id="loading">
+					<!--<video style="width: 100%;display: block;height: 100%;object-fit: cover;" autoplay muted loop>
+						<source src="images/123.mp4" type="video/mp4">
+					</video>-->
+					<svg class="flameSVG" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+						<defs>
+							<rect class="flame" x="400" y="310" width="5" height="5" rx="0.5" ry="0.5" fill="#FFDD02" />
+							<circle class="spark" cx="400" cy="300" r="0.05" fill="#FFDD02" />
+
+							<filter id="shadow" x="-100%" y="-100%" width="250%" height="250%">
+								<feOffset in="SourceAlpha" dx="4" dy="4" result="offsetOut"></feOffset>
+								<feGaussianBlur stdDeviation="3" in="offsetOut" result="drop" />
+								<feOffset dx="0" dy="0" result="offsetblur"></feOffset>
+								<feFlood id="glowAlpha" flood-color="#0F1217" flood-opacity="0.42"></feFlood>
+								<feComposite in2="offsetblur" operator="in"></feComposite>
+								<feMerge>
+									<feMergeNode />
+									<feMergeNode in="SourceGraphic"></feMergeNode>
+								</feMerge>
+							</filter>
+						</defs>
+						<g class="whole">
+							<g class="flameContainer" />
+							<g class="sparksContainer" />
+							<g class="logs" opacity="1">
+
+								<path
+									d="M446.68,299.63l-91.46,29.22a3,3,0,0,1-3.68-2.12L349.2,318a3,3,0,0,1,2.12-3.68l91.46-29.22a3,3,0,0,1,3.68,2.12L448.8,296A3,3,0,0,1,446.68,299.63Z"
+									fill="#612e25" />
+								<path filter="url(#shadow)"
+									d="M349.2,296l2.34-8.69a3,3,0,0,1,3.68-2.12l91.46,29.22A3,3,0,0,1,448.8,318l-2.34,8.69a3,3,0,0,1-3.68,2.12l-91.46-29.22A3,3,0,0,1,349.2,296Z"
+									fill="#70392f" />
+
+							</g>
+						</g>
+
+						<rect class="hit" width="200" height="260" x="300" y="230" fill="transparent">
+							<title>Poke the fire!</title>
+						</rect>
+						<div id="loadingTips">
+							<p>模型加载中请稍后...</p>
+						</div>
+					<</svg>
+					<script src='js/TweenMax.min.js'></script>
+					<script src='js/CustomEase.min.js'></script>
+					<script src="js/loading.js"></script>
+				</div>
+			</section>
+			<!--<footer>this is footer</footer>-->
+		</div>
+	</body>
+	<script type="module">
+		import * as nav from './js/nav.js';
+		var pageHeaderVm = new Vue({
+			el: '#page-header',
+			components: {
+				'nav-component': httpVueLoader('./components/nav.vue'),
+				'sidebar-component': httpVueLoader('./components/sidebar.vue'),
+				'search-component': httpVueLoader('./components/search.vue'),
+			},
+			updated: function() {
+				nav.navjs();
+				nav.sidebarjs();
+			},
+		});
+		var pinedVm = new Vue({
+			el: '#postnews',
+			data:{
+				id1:null,
+				id2:null,
+				id3:null,
+				title1:null,
+				title2:null,
+				title3:null,
+				articleCover1:null,
+				articleCover2:null,
+				articleCover3:null,
+			},
+			mounted:function(){
+				axios
+					.get('/postsLimit3')
+					.then(response => {
+						this.$forceUpdate();
+						this.id1 = response.data[0].id;
+						this.id2 = response.data[1].id;
+						this.id3 = response.data[2].id;
+						this.title1 = response.data[0].title;
+						this.title2 = response.data[1].title;
+						this.title3 = response.data[2].title;
+						this.articleCover1 = response.data[0].articleCover;
+						this.articleCover2 = response.data[1].articleCover;
+						this.articleCover3 = response.data[2].articleCover;
+					})
+					.catch(function(error) { // 请求失败处理
+						console.log(error);
+					});
+			}
+		});
+	</script>
+</html>

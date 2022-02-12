@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link rel="stylesheet" href="css/bootstrap.min.css">
+		<link rel="stylesheet" href="css/manage.css" />
+		<link rel="icon" href="favicon.ico">
+		<script src="js/jquery.min.js"></script>
+		<script src="js/v2.6.10/vue.min.js"></script>
+		<script src="js/axios.min.js"></script>
+		<script src="js/manage.js"></script>
+	</head>
+	<body>
+		<div class="page">
+			<header id="header">
+			</header>
+			<section class="demo">
+				<div class="admin-panel clearfix">
+					<div class="slidebar">
+						<div class="logo">
+							<a href=""></a>
+						</div>
+						<div class="username">
+							<p>{{userInfo.userName}}</p>
+						</div>
+						<ul>
+							<li class="active"><a href="#users" id="targeted">个人</a></li>
+							<li v-if="isAdmin" @click="queryPost()"><a href="#dashboard">文章</a></li>
+							<li v-if="isAdmin" @click="queryType()"><a href="#posts">分类</a></li>
+							<li v-if="isAdmin" @click="queryTags()"><a href="#media">标签</a></li>
+						</ul>
+					</div>
+					<div class="main">
+						<ul class="topbar clearfix">
+							<li><a href="#"> </a></li>
+							<li><a href="posts.html"> </a></li>
+							<li><a href="#"> </a></li>
+							<li><a href="#">f</a></li>
+							<li><a href="#"> </a></li>
+						</ul>
+						<div class="mainContent clearfix">
+							<div id="users">
+								<h2 class="header">个人中心</h2>
+								<div class="rows">
+									<div class="quick-press">
+										<h4>个人信息</h4>
+										<form action="/updateUserInfo" method="get">
+											<input type="hidden" name='uid' :value="loginStatus" />
+											<label><span>&nbsp;&nbsp;&nbsp;&nbsp;用户名：</span>
+												<input type="text" v-model="userInfo.userName" name="userName"
+													placeholder="用户名" />
+											</label>
+											<label><span>电子邮箱：</span>
+												<input type="text" disabled="disabled" style="cursor: no-drop;"
+													placeholder="email" :value="userInfo.email" />
+											</label>
+											<label><span>主页地址：</span>
+												<input type="text" name="indexUrl" v-model="userInfo.indexUrl"
+													placeholder="主页地址" />
+											</label>
+											<button type="reset" class="delet">m</button>
+											<button type="submit" class="submit" name="submit">修改</button>
+										</form>
+									</div>
+									<div class="quick-press">
+										<h4>个人头像</h4>
+										<form action="/updateAvatar" enctype="multipart/form-data" method="post">
+											<input type="hidden" name='uid' :value="loginStatus" />
+											<label id="uploadPicture" class="uploadPicture-wrapper"><input type="file"
+													accept="image/jpeg" name="updateAvatar" id="article-cover"
+													style="display: none;" />
+												<div class="upload-picture">
+													<svg class="Zi Zi--Plus upload-picture-svg" fill="currentColor"
+														viewBox="0 0 24 24" width="14" height="14">
+														<path
+															d="M13.491 10.488s-.012-5.387 0-5.998c-.037-1.987-3.035-1.987-2.997 0-.038 1.912 0 5.998 0 5.998H4.499c-1.999.01-1.999 3.009 0 3.009s5.995-.01 5.995-.01v5.999c0 2.019 3.006 2.019 2.997 0-.01-2.019 0-5.998 0-5.998s3.996.009 6.004.009c2.008 0 2.008-3-.01-3.009h-5.994z"
+															fill-rule="evenodd"></path>
+													</svg>
+													修改头像
+												</div>
+											</label>
+											<div id="picture" class="picture-view-wrapper">
+												<img alt="头像" src="" class="picture-view">
+											</div>
+											<button type="reset" class="delet">m</button>
+											<button type="submit" class="submit" name="submit">修改</button>
+										</form>
+									</div>
+								</div>
+								<div class="rows">
+									<div class="quick-press">
+										<h4>友情链接</h4>
+										<form action="" method="post">
+											<label><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;介绍：</span>
+												<input type="text" value="白空" name="userName" placeholder="用户名" />
+											</label>
+											<label><span>&nbsp;&nbsp;&nbsp;&nbsp;网站名：</span>
+												<input type="text" disabled="disabled" style="cursor: no-drop;"
+													placeholder="email" value="472597160@qq.com" />
+											</label>
+											<label><span>主页地址：</span>
+												<input type="text" name="indexUrl" value="http://127.0.0.1/index.html"
+													placeholder="主页地址" />
+											</label>
+											<button type="reset" class="delet">m</button>
+											<button type="submit" class="submit" name="submit">发送申请</button>
+										</form>
+									</div>
+									<div class="quick-press">
+										<h4>友链logo</h4>
+										<form action="" method="post">
+											<label id="link-logo-label" class="uploadPicture-wrapper"><input type="file"
+													accept="image/jpeg" name="linkLogo" id="link-logo"
+													style="display: none;" />
+												<div class="upload-picture">
+													<svg class="Zi Zi--Plus upload-picture-svg" fill="currentColor"
+														viewBox="0 0 24 24" width="14" height="14">
+														<path
+															d="M13.491 10.488s-.012-5.387 0-5.998c-.037-1.987-3.035-1.987-2.997 0-.038 1.912 0 5.998 0 5.998H4.499c-1.999.01-1.999 3.009 0 3.009s5.995-.01 5.995-.01v5.999c0 2.019 3.006 2.019 2.997 0-.01-2.019 0-5.998 0-5.998s3.996.009 6.004.009c2.008 0 2.008-3-.01-3.009h-5.994z"
+															fill-rule="evenodd"></path>
+													</svg>
+													修改头像
+												</div>
+											</label>
+											<div id="picture-view-link-logo" class="picture-view-wrapper">
+												<img alt="头像" src="" class="picture-view">
+											</div>
+											<button type="reset" class="delet">m</button>
+											<button type="submit" class="submit" name="submit">修改</button>
+										</form>
+									</div>
+								</div>
+							</div>
+
+							<div v-if="isAdmin" id="dashboard">
+								<h2 class="header">文章管理中心</h2>
+								<div class="container">
+									<div id="keywordvm" align="center">
+										<input v-model="keyword" class="form-control" placeholder="请输入关键字"
+											style="width: 350px;display: inline-block;" type="text" />
+										<button @click="queryKw()" class="btn submit" type="button"
+											style="color: #fff;background-color: rgb(245, 101, 82);">查询</button>
+										<a href="edit.html" target="_blank">
+											<button class="btn submit" type="button"
+												style="color: #fff;background-color: rgb(245, 101, 82);">添加新文章</button>
+										</a>
+
+									</div>
+									<hr>
+									<table class="table table-striped">
+										<thead>
+											<tr>
+												<th style="text-align: center;vertical-align: middle;">序号</th>
+												<th style="text-align: center;vertical-align: middle;">id</th>
+												<th style="text-align: center;vertical-align: middle;">标题</th>
+												<th style="text-align: center;vertical-align: middle;">封面</th>
+												<th style="text-align: center;vertical-align: middle;">发表时间</th>
+												<th style="text-align: center;vertical-align: middle;">更新时间</th>
+												<th style="text-align: center;vertical-align: middle;">类型</th>
+												<th style="text-align: center;vertical-align: middle;">置顶</th>
+												<th style="text-align: center;vertical-align: middle;">操作</th>
+											</tr>
+										</thead>
+										<tbody id="postList">
+											<tr v-for="(p,index) in postsList">
+												<td style="text-align: center;vertical-align: middle;">{{index+1}}</td>
+												<td style="text-align: center;vertical-align: middle;">{{p.id}}</td>
+												<td style="text-align: center;vertical-align: middle;"><a
+														target="_blank"
+														:href="'postsDetail.html?id='+p.id">{{p.title}}</a></td>
+												<td style="text-align: center;vertical-align: middle;"
+													v-if="p.articleCover!=null"><img :src="p.articleCover" width="150px"
+														height="90px"></td>
+												<td style="text-align: center;vertical-align: middle;"
+													v-if="p.articleCover==null">暂无封面</td>
+												<td style="text-align: center;vertical-align: middle;">
+													{{p.insertTime}}
+												</td>
+												<td style="text-align: center;vertical-align: middle;">
+													{{p.updateTime}}
+												</td>
+												<td style="text-align: center;vertical-align: middle;">
+													{{p.c1name}}>{{p.c2name}}
+												</td>
+												<td style="text-align: center;vertical-align: middle;">
+													<button v-if="!p.sticky" class="btn btn-link" @click="stickyPost(p.id)">置顶</button>
+													<button v-if="p.sticky" class="btn btn-link" @click="stickyPostcancel(p.id)">取消置顶</button>
+												</td>
+												<td style="text-align: center;vertical-align: middle;">
+													<button class="btn btn-link" @click="updatePost(p.id)">修改</button>
+													<button class="btn btn-link" @click="deletePost(p.id)">删除</button>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+
+							</div>
+							<div v-if="isAdmin" id="posts">
+								<h2 class="header">分类管理中心</h2>
+								<div class="container">
+									<div class="container">
+										<div id="keywordvm" align="center">
+											<input v-model="c1Kw" class="form-control" placeholder="请输入关键字"
+												style="width: 350px;display: inline-block;" type="text" />
+											<button @click="queryCKw1()" class="btn submit" type="button"
+												style="color: #fff;background-color: rgb(245, 101, 82);">查询</button>
+											<button @click="addC1()" class="btn submit" type="button"
+												style="color: #fff;background-color: rgb(245, 101, 82);">添加新分类</button>
+										</div>
+										<hr>
+										<table class="table table-striped">
+											<thead>
+												<tr>
+													<th style="text-align: center;vertical-align: middle;">序号</th>
+													<th style="text-align: center;vertical-align: middle;">id</th>
+													<th style="text-align: center;vertical-align: middle;">一级分类名称</th>
+													<th style="text-align: center;vertical-align: middle;">操作</th>
+												</tr>
+											</thead>
+											<tbody id="postList">
+												<tr v-for="(t,index) in type1List">
+													<td style="text-align: center;vertical-align: middle;">{{index+1}}
+													</td>
+													<td style="text-align: center;vertical-align: middle;">{{t.id}}</td>
+													<td style="text-align: center;vertical-align: middle;">
+														<button class="btn btn-link"
+															@click="queryType2(t.id,t.name)">{{t.name}}</button>
+														<input class="form-control" :id="'c1name'+t.id" type="text"
+															:value="t.name" style="width: 150px;display: none;" />
+													</td>
+													<td style="text-align: center;vertical-align: middle;">
+														<button class="btn btn-link"
+															@click="showUpdate(t.id)">修改</button>
+														<button :id="'ok'+t.id" class="btn btn-link"
+															@click="hideUpdate(t.id)" style="display: none;">完成</button>
+														<button class="btn btn-link"
+															@click="deleteType1(t.id)">删除</button>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+									<div class="container">
+										<div id="keywordvm" align="center">
+											<input v-model="c2Kw" class="form-control" placeholder="请输入关键字"
+												style="width: 350px;display: inline-block;" type="text" />
+											<button @click="queryCKw2()" class="btn submit" type="button"
+												style="color: #fff;background-color: rgb(245, 101, 82);">查询</button>
+											<button class="btn submit" type="button" @click="addC2()"
+												style="color: #fff;background-color: rgb(245, 101, 82);">添加新分类</button>
+										</div>
+										<hr>
+										<table class="table table-striped">
+											<thead>
+												<tr>
+													<th style="text-align: center;vertical-align: middle;">序号</th>
+													<th style="text-align: center;vertical-align: middle;">id</th>
+													<th style="text-align: center;vertical-align: middle;">二级分类名称</th>
+													<th style="text-align: center;vertical-align: middle;">操作</th>
+												</tr>
+											</thead>
+											<tbody id="postList">
+												<tr v-for="(t,index) in type2List">
+													<td style="text-align: center;vertical-align: middle;">{{index+1}}
+													</td>
+													<td style="text-align: center;vertical-align: middle;">{{t.id}}</td>
+													<td style="text-align: center;vertical-align: middle;">
+														<span>{{t.c2name}}</span>
+														<input class="form-control" :id="'c2name'+t.id" type="text"
+															:value="t.c2name" style="width: 150px;display: none;" />
+													</td>
+													<td style="text-align: center;vertical-align: middle;">
+														<button class="btn btn-link"
+															@click="show2Update(t.id)">修改</button>
+														<button :id="'o2k'+t.id" class="btn btn-link"
+															@click="hide2Update(t.id)"
+															style="display: none;">完成</button>
+														<button class="btn btn-link"
+															@click="deleteType2(t.id)">删除</button>
+													</td>
+												</tr>
+												<tr style="text-align: center;vertical-align: middle;">
+													<td colspan="4">所属一级分类：{{type1name}}</td>
+													<input type="hidden" v-model="type1Id" />
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+							<div id="media">
+								<h2 class="header">标签管理中心</h2>
+								<div class="container">
+									<div id="keywordvm" align="center">
+										<input v-model="tagKw" class="form-control" placeholder="请输入关键字"
+											style="width: 350px;display: inline-block;" type="text" />
+										<button @click="queryTagsKw()" class="btn submit" type="button"
+											style="color: #fff;background-color: rgb(245, 101, 82);">查询</button>
+										<button class="btn submit" type="button" @click="addTag()"
+											style="color: #fff;background-color: rgb(245, 101, 82);">添加新标签</button>
+									</div>
+									<hr>
+									<table class="table table-striped">
+										<thead>
+											<tr>
+												<th style="text-align: center;vertical-align: middle;">序号</th>
+												<th style="text-align: center;vertical-align: middle;">id</th>
+												<th style="text-align: center;vertical-align: middle;">标签名称</th>
+												<th style="text-align: center;vertical-align: middle;">操作</th>
+											</tr>
+										</thead>
+										<tbody id="postList">
+											<tr v-for="(t,index) in tags">
+												<td style="text-align: center;vertical-align: middle;">{{index+1}}
+												</td>
+												<td style="text-align: center;vertical-align: middle;">{{t.id}}</td>
+												<td style="text-align: center;vertical-align: middle;">
+													<span>{{t.name}}</span>
+													<input class="form-control" :id="'tag'+t.id" type="text"
+														:value="t.name" style="width: 150px;display: none;" />
+												</td>
+												<td style="text-align: center;vertical-align: middle;">
+													<button class="btn btn-link"
+														@click="tagUpdate(t.id)">修改</button>
+													<button :id="'tagok'+t.id" class="btn btn-link"
+														@click="hideTagUpdate(t.id)"
+														style="display: none;">完成</button>
+													<button class="btn btn-link"
+														@click="deleteTag(t.id)">删除</button>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+						<ul class="statusbar">
+							<li><a href=""></a></li>
+							<li><a href=""></a></li>
+							<li class="profiles-setting"><a href="/logout">s</a></li>
+							<li class="logout"><a href="">k</a></li>
+						</ul>
+					</div>
+				</div>
+				<script type="text/javascript">
+					(function() {
+						var initTarget = document.getElementById("targeted");
+						initTarget.click();
+					})();
+				</script>
+				<script src="js/manageVue.js"></script>
+			</section>
+		</div>
+	</body>
+</html>

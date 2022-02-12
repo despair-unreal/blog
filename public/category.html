@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>归档</title>
+		<link rel="stylesheet" type="text/css" href="css/all.css" />
+		<link href="css/board.css" rel="stylesheet">
+		<link rel="icon" href="favicon.ico">
+		<script src="js/jquery.min.js"></script>
+		<script src="js/v2.6.10/vue.min.js"></script>
+		<script src="js/httpVueLoader.js"></script>
+		<script src="js/axios.min.js"></script>
+	</head>
+	<body>
+		<div id="web_bg"></div>
+		<div id="page">
+			<header class="not-top-img" id="page-header">
+				<nav-component></nav-component>
+				<sidebar-component></sidebar-component>
+				<search-component></search-component>
+			</header>
+			<main class="layout" id="content-inner">
+				<div id="page">
+					<div class="category-lists">
+						<div class="category-title is-center">分类 - <span
+								class="category-amount">{{categoryListNum}}</span></div>
+						<div>
+							<ul class="category-list">
+								<li v-for="c in categoryList" class="category-list-item">
+									<a class="category-list-link"
+										:href="'categoryDetail.html?type=c1&id='+c.c1id+'&name='+c.c1name">{{c.c1name}}</a>
+									<span class="category-list-count">{{c.c1count}}</span>
+									<ul class="category-list-child">
+										<li v-for="i in c.c2list" class="category-list-item">
+											<a class="category-list-link"
+												:href="'categoryDetail.html?type=c2&id='+i.c2id+'&name='+i.c2name">{{i.c2name}}</a>
+											<span class="category-list-count">{{i.c2count}}</span>
+										</li>
+									</ul>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<div class="tag-cloud-list is-center">
+						<div class="tag-cloud-title is-center">标签 - <span
+								class="tag-cloud-amount">{{tagsList.length}}</span></div>
+						<a v-for="i in tagsList" :href="'categoryDetail.html?type=c3&id='+i.id+'&name='+i.name"
+							style="font-size:1em;color:#6f1d68">{{i.name}}</a>
+					</div>
+				</div>
+				<aside-component id="aside-content"></aside-component>
+			</main>
+		</div>
+	</body>
+	<script type="module">
+		import * as nav from './js/nav.js';
+		var pageHeaderVm = new Vue({
+			el: '#page-header',
+			components: {
+				'nav-component': httpVueLoader('./components/nav.vue'),
+				'sidebar-component': httpVueLoader('./components/sidebar.vue'),
+				'search-component': httpVueLoader('./components/search.vue'),
+			},
+			updated: function() {
+				nav.navjs();
+				nav.sidebarjs();
+			}
+		});
+		var asideVm = new Vue({
+			el: '#aside-content',
+			components: {
+				'aside-component': httpVueLoader('./components/aside.vue'),
+			}
+		});
+		var categoryVm = new Vue({
+			el: '.category-lists',
+			data: {
+				categoryList: [],
+				categoryListNum: 0
+			},
+			mounted: function() {
+				axios
+					.get('/queryCategory')
+					.then(response => {
+						this.categoryList = response.data;
+						this.categoryListNum += response.data.length;
+						for (var i in response.data) {
+							this.categoryListNum += response.data[i].c2list.length;
+						}
+					})
+					.catch(function(error) { // 请求失败处理
+						console.log(error);
+					});
+			}
+		});
+		var tagVm = new Vue({
+			el: '.tag-cloud-list',
+			data: {
+				tagsList: [],
+			},
+			methods: {
+				randomColor: function() {
+					var str = '#9999';
+					for (var i = 0; i < 2; i++) {
+						str += Math.floor(Math.random() * 16).toString(16);
+					}
+					return str;
+				},
+				randomSize: function() {
+					var str = (Math.random() + 1.02).toFixed(2) + "em";
+					return str;
+				},
+			},
+			mounted: function() {
+				axios
+					.get('/categoryTags')
+					.then(response => {
+						this.tagsList = response.data;
+					})
+					.catch(function(error) { // 请求失败处理
+						console.log(error);
+					});
+			},
+			updated: function() {
+				for (var i in this.tagsList) {
+					$(".tag-cloud-list a").eq(i).css("color", this.randomColor());
+					$(".tag-cloud-list a").eq(i).css("font-size", this.randomSize());
+				}
+			}
+		});
+	</script>
+</html>

@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="zh">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>登录</title>
+		<link rel="stylesheet" type="text/css" href="css/all.css">
+		<link rel="stylesheet" type="text/css" href="css/login.css">
+		<link rel="icon" href="favicon.ico">
+		<script src="js/jquery.min.js"></script>
+		<script src="js/jquery-ui.min.js"></script>
+		<script src="js/v2.6.10/vue.min.js"></script>
+		<script src="js/axios.min.js"></script>
+		<script src="js/httpVueLoader.js"></script>
+		<script src='js/stopExecutionOnTimeout.js?t=1'></script>
+	</head>
+	<body>
+		<header class="not-top-img" id="page-header">
+			<nav-component></nav-component>
+			<sidebar-component></sidebar-component>
+			<search-component></search-component>
+		</header>
+		<canvas id="Mycanvas"></canvas>
+		<div class='login'>
+			<div class='login_title'>
+				<span>账号登录</span>
+			</div>
+			<form onsubmit="return false" @submit="login()">
+				<div class='login_fields'>
+					<div class='login_fields__user'>
+						<div class='icon'>
+							<img src='images/user_icon_copy.png'>
+						</div>
+						<input v-model="email" placeholder='电子邮箱' required="required" type='email'>
+						<div class='validation'>
+							<img src='images/tick.png'>
+						</div>
+						</input>
+					</div>
+					<div class='login_fields__password'>
+						<div class='icon'>
+							<img src='images/lock_icon_copy.png'>
+						</div>
+						<input v-model="pwd" placeholder='密码' required="required" type='password'>
+						<div class='validation'>
+							<img src='images/tick.png'>
+						</div>
+					</div>
+					<div class='login_fields__submit'>
+						<input type='submit' value='登录'>
+						<div class='forgot'>
+							<a href='#'>忘记密码?</a>
+						</div>
+					</div>
+				</div>
+			</form>
+			<div id='success' class='success'>
+				<h2>认证成功</h2>
+				<p>欢迎回来，<span>{{userInfo.userName}}</span></p>
+				<img v-if="userInfo.avatarUrl!=null" :src="userInfo.avatarUrl" />
+				<img v-if="userInfo.avatarUrl==null" src="images/nullAvatar.png" />
+				<div class='login_index__submit'>
+					<input type='button' value='进入主页' onclick="window.location.href='posts.html'">
+				</div>
+			</div>
+			<div id='fail' class='success'>
+				<h2>认证失败</h2>
+				<p>用户名或密码错误</p>
+				<p>如需注册请直接在登录处进行登录注册</p>
+				<div class='login_index__submit'>
+					<input onclick="window.location.href='login.html'" type='button' value='返回登录处'>
+				</div>
+			</div>
+			<div class='disclaimer'>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce semper laoreet placerat. Nullam semper
+					auctor justo, rutrum posuere odio vulputate nec.</p>
+			</div>
+		</div>
+		<div class='authent'>
+			<img src='images/ajax-loader.gif'>
+			<p>认证中...</p>
+		</div>
+		<script src="js/login.js"></script>
+	</body>
+	<script type="module">
+		import * as nav from './js/nav.js';
+		var pageHeaderVm = new Vue({
+			el: '#page-header',
+			components: {
+				'nav-component': httpVueLoader('./components/nav.vue'),
+				'sidebar-component': httpVueLoader('./components/sidebar.vue'),
+				'search-component': httpVueLoader('./components/search.vue'),
+			},
+			updated: function() {
+				nav.navjs();
+				nav.sidebarjs();
+			}
+		});
+		var loginVm = new Vue({
+			el: '.login',
+			data: {
+				userInfo: {},
+				email: null,
+				pwd: null
+			},
+			methods: {
+				login: function() {
+					$('.login').addClass('test');
+					setTimeout(function() {
+						$('.login').addClass('testtwo');
+					}, 300);
+					setTimeout(function() {
+						$('.authent').show().animate({
+							right: -320
+						}, {
+							easing: 'easeOutQuint',
+							duration: 600,
+							queue: false
+						});
+						$('.authent').animate({
+							opacity: 1
+						}, {
+							duration: 200,
+							queue: false
+						}).addClass('visible');
+					}, 500);
+					setTimeout(function() {
+						$('.authent').show().animate({
+							right: 90
+						}, {
+							easing: 'easeOutQuint',
+							duration: 600,
+							queue: false
+						});
+						$('.authent').animate({
+							opacity: 0,
+						}, {
+							duration: 200,
+							queue: false
+						}).addClass('visible');
+						$('.login').removeClass('testtwo');
+					}, 2500);
+					setTimeout(function() {
+						$('.login').removeClass('test');
+						$('.login div').fadeOut(123);
+					}, 2800);
+					setTimeout(function() {
+						axios
+							.post('/login', {
+								params: {
+									email: loginVm.email,
+									pwd: loginVm.pwd
+								}
+							})
+							.then(response1 => {
+								if (response1.data.isRegister == false) {
+									$('.authent').hide();
+									$('#fail').fadeIn();
+									setTimeout(function() {
+										if (confirm("发现该电子邮箱还未注册，是否直接注册登录？")) {
+											axios
+												.post('/register', {
+													params: {
+														email: loginVm.email,
+														pwd: loginVm.pwd
+													}
+												})
+												.then(response2 => {
+													loginVm.userInfo = response2.data;
+													$('.authent').hide();
+													$('#fail').fadeOut();
+													$('#success').fadeIn();
+												})
+												.catch(function(error) { // 请求失败处理
+													console.log(error);
+												});
+										}
+									}, 300);
+								} else {
+									if (response1.data.isSuccess == false) {
+										$('.authent').hide();
+										$('#fail').fadeIn();
+									}else{
+										loginVm.userInfo = response1.data[0];
+										$('.authent').hide();
+										$('#fail').fadeOut();
+										$('#success').fadeIn();
+									}
+								}
+							})
+							.catch(function(error) { // 请求失败处理
+								console.log(error);
+							});
+					}, 2800);
+				}
+			},
+			mounted: function() {
+				axios
+					.get('/getLoginStatus')
+					.then(response => {
+						if(response.data!=''){
+							alert("不可重复登录！");
+							window.location.href="../posts.html";
+						}
+					})
+					.catch(function(error) { // 请求失败处理
+						console.log(error);
+					});
+				
+			}
+		});
+	</script>
+</html>

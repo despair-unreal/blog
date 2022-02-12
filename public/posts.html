@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>博客</title>
+		<link rel="stylesheet" type="text/css" href="css/all.css" />
+		<link rel="icon" href="favicon.ico">
+		<script src="js/jquery.min.js"></script>
+		<script src="js/v2.6.10/vue.min.js"></script>
+		<script src="js/axios.min.js"></script>
+		<script src="js/httpVueLoader.js"></script>
+	</head>
+	<body>
+		<div id="web_bg"></div>
+		<div id="page">
+			<header class="not-top-img" id="page-header">
+				<nav-component></nav-component>
+				<sidebar-component></sidebar-component>
+				<search-component></search-component>
+			</header>
+			<main class="layout" id="content-inner">
+				<div id="recent-posts" class="recent-posts">
+					<div class="recent-post-item" v-for="p in postsList">
+						<div class="post_cover left_radius">
+							<a :href="'postsDetail.html?id='+p.id" :title="p.title">
+								<img v-if="p.articleCover == null" class="post_bg entered loaded" src="images/404.jpg" :alt="p.title">
+								<img v-if="p.articleCover != null" class="post_bg entered loaded" :src="p.articleCover" :alt="p.title">
+							</a>
+						</div>
+						<div class="recent-post-info">
+							<a class="article-title" :href="'postsDetail.html?id='+p.id" :title="p.title">{{p.title}}</a>
+							<div class="article-meta-wrap"><!--
+							 --><span class="article-meta" v-if="p.sticky"><!--
+								 --><i class="fas fa-thumbtack sticky"></i><!--
+								 --><span class="sticky">置顶</span><!--
+								 --><span class="article-meta__separator">|</span><!--
+							 --></span><!--
+							 --><span class="post-meta-date"><!--
+								 --><i class="far fa-calendar-alt"></i><!--
+								 --><span class="article-meta-label">发表于</span><!--
+								 --><time class="post-meta-date-created" title="发表于 insertTime" style="display: inline;">4 个月前</time><!--
+								 --><span class="article-meta__separator">|</span><!--
+								 --><i class="fas fa-history"></i><!--
+								 --><span class="article-meta-label">更新于</span><!--
+								 --><time class="post-meta-date-updated" title="更新于 updateTime" style="display: inline;">1 个月前</time><!--
+							 --></span><!--
+							 --><span class="article-meta"><!--
+								 --><span class="article-meta__separator">|</span><!--
+								 --><i class="fas fa-inbox"></i><!--
+								 --><a class="article-meta__categories" :href="'categoryDetail.html?type=c1&id='+p.c1id+'&name='+p.c1name">{{p.c1name}}</a><!--
+								 --><i class="fas fa-angle-right"></i><!--
+								 --><a class="article-meta__categories" :href="'categoryDetail.html?type=c2&id='+p.c2id+'&name='+p.c2name">{{p.c2name}}</a><!--
+							 --></span>
+							</div>
+							<div class="content" v-html="p.content">
+								{{p.content}}
+							</div>
+						</div>
+					</div>
+				</div>
+				<aside-component id="aside-content"></aside-component>
+			</main>
+		</div>
+	</body>
+	<script type="module">
+		import * as nav from './js/nav.js';
+		var pageHeaderVm = new Vue({
+			el: '#page-header',
+			components: {
+				'nav-component': httpVueLoader('./components/nav.vue'),
+				'sidebar-component': httpVueLoader('./components/sidebar.vue'),
+				'search-component': httpVueLoader('./components/search.vue'),
+			},
+			updated: function() {
+				nav.navjs();
+				nav.sidebarjs();
+			}
+		});
+		var asideVm = new Vue({
+			el: '#aside-content',
+			components: {
+				'aside-component': httpVueLoader('./components/aside.vue'),
+			}
+		});
+		var recentPostsVm = new Vue({
+			el: '#recent-posts',
+			data: {
+				postsList: []
+			},
+			methods: {
+				getDistanceMonth: function(startTime, endTime) {
+					startTime = new Date(startTime)
+					endTime = new Date(endTime)
+					var dateToMonth = 0
+					var startDate = startTime.getDate() + startTime.getHours() / 24 + startTime.getMinutes() /
+						24 /
+						60;
+					var endDate = endTime.getDate() + endTime.getHours() / 24 + endTime.getMinutes() / 24 / 60;
+					if (endDate >= startDate) {
+						dateToMonth = 0
+					} else {
+						dateToMonth = -1
+					}
+					let yearToMonth = (endTime.getYear() - startTime.getYear()) * 12
+					let monthToMonth = endTime.getMonth() - startTime.getMonth()
+					return yearToMonth + monthToMonth + dateToMonth;
+				},
+				CurentTime: function() {
+					var now = new Date();
+					var year = now.getFullYear(); //年
+					var month = now.getMonth() + 1; //月
+					var day = now.getDate(); //日
+					var hh = now.getHours(); //时
+					var mm = now.getMinutes(); //分
+					var clock = year + "-";
+					if (month < 10)
+						clock += "0";
+					clock += month + "-";
+					if (day < 10)
+						clock += "0";
+					clock += day + " ";
+					if (hh < 10)
+						clock += "0";
+					clock += hh + ":";
+					if (mm < 10) clock += '0';
+					clock += mm;
+					return (clock);
+				}
+			},
+			mounted: function() {
+				axios
+					.get('/postsAll')
+					.then(response => {
+						this.postsList = response.data;
+					})
+					.catch(function(error) { // 请求失败处理
+						console.log(error);
+					});
+			},
+			updated: function() {
+				for (let i = 0; i < this.postsList.length; i++) {
+					$(".post-meta-date-created").eq(i).prop("title", "发表于 " + this.postsList[i].insertTime);
+					var createdTime=this.getDistanceMonth(this.postsList[i].insertTime, this.CurentTime());
+					if(createdTime==0)
+						$(".post-meta-date-created").eq(i).html("本月发表");
+					else
+						$(".post-meta-date-created").eq(i).html(createdTime+"个月前");
+						
+					$(".post-meta-date-updated").eq(i).prop("title", "更新于 " + this.postsList[i].updateTime);
+					var updatedTime=this.getDistanceMonth(this.postsList[i].updateTime, this.CurentTime());
+					if(updatedTime==0)
+						$(".post-meta-date-updated").eq(i).html("本月更新");
+					else
+						$(".post-meta-date-updated").eq(i).html(updatedTime+"个月前");
+				}
+			}
+		})
+	</script>
+</html>

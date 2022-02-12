@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>我的微博</title>
+		<link rel="stylesheet" type="text/css" href="css/all.css" />
+		<link href="css/board.css" rel="stylesheet">
+		<link rel="icon" href="favicon.ico">
+		<script src="js/jquery.min.js"></script>
+		<script src="js/v2.6.10/vue.min.js"></script>
+		<script src="js/httpVueLoader.js"></script>
+		<script src="js/axios.min.js"></script>
+	</head>
+	<body>
+		<div id="web_bg"></div>
+		<div id="page">
+			<header class="not-top-img" id="page-header">
+				<nav-component></nav-component>
+				<sidebar-component></sidebar-component>
+				<search-component></search-component>
+			</header>
+			<main class="layout" id="content-inner">
+				<div id="page">
+					<div id="article-container">
+						<div id="weibo-head">
+							<a href="https://img-1253324855.cos.ap-chengdu.myqcloud.com/picgo/20210707143351.png"
+								class="fancybox">
+								<img class="weibo-head-img entered loaded"
+									data-lazy-src="https://img-1253324855.cos.ap-chengdu.myqcloud.com/picgo/20210707143351.png"
+									src="https://img-1253324855.cos.ap-chengdu.myqcloud.com/picgo/20210707143351.png"
+									data-ll-status="loaded">
+							</a>
+							<a class="weibo-head-title" id="weibo-head-title">我的微博 .</a>
+						</div>
+						<script>
+							$("#weibo-head-title").on("click", (function(o) {
+								$(".tk-submit").show(), o.stopPropagation()
+							}))
+						</script>
+					</div>
+					<br>
+					<br>
+					<div id="post-comment">
+						<div class="comment-wrap">
+							<div>
+								<div id="twikoo" class="twikoo">
+									<div class="tk-comments">
+										<div id="tk-submit">
+											<form target="iframe" method="post" enctype="multipart/form-data"
+												action="/boardSubmit">
+												<commentsubmit-component v-if="loginstatus==9"
+													:loginstatus="loginstatus" :userinfo="userinfo">
+												</commentsubmit-component>
+											</form>
+											<iframe name="iframe" id="form" style="display:none"></iframe>
+										</div>
+										<div class="tk-comments-container">
+											<div class="tk-comments-title">
+												<span class="tk-comments-count">
+													<span>{{commentList.length}}</span>
+													<span> 条评论</span>
+												</span>
+												<span>
+													<span class="tk-icon">
+														<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+															<path
+																d="M440.65 12.57l4 82.77A247.16 247.16 0 0 0 255.83 8C134.73 8 33.91 94.92 12.29 209.82A12 12 0 0 0 24.09 224h49.05a12 12 0 0 0 11.67-9.26 175.91 175.91 0 0 1 317-56.94l-101.46-4.86a12 12 0 0 0-12.57 12v47.41a12 12 0 0 0 12 12H500a12 12 0 0 0 12-12V12a12 12 0 0 0-12-12h-47.37a12 12 0 0 0-11.98 12.57zM255.83 432a175.61 175.61 0 0 1-146-77.8l101.8 4.87a12 12 0 0 0 12.57-12v-47.4a12 12 0 0 0-12-12H12a12 12 0 0 0-12 12V500a12 12 0 0 0 12 12h47.35a12 12 0 0 0 12-12.6l-4.15-82.57A247.17 247.17 0 0 0 255.83 504c121.11 0 221.93-86.92 243.55-201.82a12 12 0 0 0-11.8-14.18h-49.05a12 12 0 0 0-11.67 9.26A175.86 175.86 0 0 1 255.83 432z">
+															</path>
+														</svg>
+													</span>
+												</span>
+											</div>
+											<div id="tk-comment">
+												<comment-component v-for="(item,index) in commentList"
+													:key="'p'+item.id" :toid="'p'+item.id" v-bind="item"
+													:loginstatus="loginstatus" :userinfo="userinfo"
+													:actionurl="actionUrl" :username="username"></comment-component>
+											</div>
+											<div class="el-loading-mask" style="display: none;"></div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<aside-component id="aside-content"></aside-component>
+			</main>
+		</div>
+	</body>
+	<script type="module">
+		import * as nav from './js/nav.js';
+		var pageHeaderVm = new Vue({
+			el: '#page-header',
+			components: {
+				'nav-component': httpVueLoader('./components/nav.vue'),
+				'sidebar-component': httpVueLoader('./components/sidebar.vue'),
+				'search-component': httpVueLoader('./components/search.vue'),
+			},
+			updated: function() {
+				nav.navjs();
+				nav.sidebarjs();
+			}
+		});
+		var asideVm = new Vue({
+			el: '#aside-content',
+			components: {
+				'aside-component': httpVueLoader('./components/aside.vue'),
+			}
+		});
+		var tkSubmitVm = new Vue({
+			el: '#tk-submit',
+			data: {
+				pid: null,
+				loginstatus: null,
+				userinfo: {}
+			},
+			mounted: function() {
+				$("#form").load(function() {
+					var text = $(this).contents().find("body").text(); //获取到的是json的字符串
+					var j = $.parseJSON(text); //json字符串转换成json对象
+					tkCommentsVm.commentList = j;
+				})
+
+				axios
+					.get('/getLoginStatus')
+					.then(response => {
+						this.loginstatus = response.data;
+						tkCommentsVm.loginstatus = this.loginstatus;
+						if (this.loginstatus != '') {
+							axios
+								.get('/getUserInfo', {
+									params: {
+										id: this.loginstatus
+									}
+								})
+								.then(response1 => {
+									this.userinfo = response1.data;
+									tkCommentsVm.userinfo = this.userinfo;
+								})
+								.catch(function(error1) { // 请求失败处理
+									console.log(error1);
+								});
+						}
+					})
+					.catch(function(error) { // 请求失败处理
+						console.log(error);
+					});
+			},
+			components: {
+				'commentsubmit-component': httpVueLoader('./components/commentsSubmit.vue')
+			}
+		});
+		var tkCommentsVm = new Vue({
+			el: ".tk-comments-container",
+			data: {
+				commentList: [],
+				loginstatus: tkSubmitVm.loginstatus,
+				userinfo: tkSubmitVm.userinfo,
+				username:"白空",
+				actionUrl:"/boardSubmit2"
+			},
+			components: {
+				'comment-component': httpVueLoader('./components/comment.vue')
+			},
+			mounted: function() {
+				axios
+					.get('/queryboard')
+					.then(response => {
+						this.commentList = response.data;
+					})
+					.catch(function(error) { // 请求失败处理
+						console.log(error);
+					});
+			}
+		})
+	</script>
+</html>
