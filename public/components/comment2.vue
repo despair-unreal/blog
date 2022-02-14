@@ -9,10 +9,12 @@
 				<div class="tk-meta">
 					<a v-if="indexUrl!=null&&indexUrl!=''" class="tk-nick tk-nick-link" rel="noopener noreferrer"
 						target="_blank" :href="indexUrl">
-						<strong>{{userName}}</strong>
+						<strong v-if="userName!=null&&userName!=''">{{userName}}</strong>
+						<strong v-if="userName==null||userName==''">匿名账户</strong>
 					</a>
 					<a v-if="indexUrl==null||indexUrl==''" class="tk-nick tk-nick-link" rel="noopener noreferrer">
-						<strong>{{userName}}</strong>
+						<strong v-if="userName!=null&&userName!=''">{{userName}}</strong>
+						<strong v-if="userName==null||userName==''">匿名账户</strong>
 					</a>
 					<small class="tk-time">
 						<time :datetime="time" :title="time">{{time}}</time>

@@ -10,6 +10,7 @@
 		<script src="js/v2.6.10/vue.min.js"></script>
 		<script src="js/httpVueLoader.js"></script>
 		<script src="js/axios.min.js"></script>
+		<script src="js/echarts.min.js"></script>
 	</head>
 	<body>
 		<div id="web_bg"></div>
@@ -21,6 +22,7 @@
 			</header>
 			<main class="layout" id="content-inner">
 				<div id="page">
+				<div id="postCharts" class="post-charts" style="height: 450px;"></div>
 					<div class="category-lists">
 						<div class="category-title is-center">分类 - <span
 								class="category-amount">{{categoryListNum}}</span></div>
@@ -72,6 +74,64 @@
 				'aside-component': httpVueLoader('./components/aside.vue'),
 			}
 		});
+		var postChartsVm = new Vue({
+			el: '#postCharts',
+			data: {
+				ChartsList: [],
+				myChart:null
+			},
+			mounted: function() {
+				var myChart = echarts.init(document.getElementById('postCharts'));
+				this.myChart = myChart;
+				this.myChart.showLoading();
+			},
+			watch: {
+				ChartsList: function(val) {
+					var ChartsListShow = [];
+					for (let i = 0; i < this.ChartsList.length; i++) {
+						for (let j = 0; j < this.ChartsList[i].c2list.length; j++) {
+							var obj = {
+								"value": this.ChartsList[i].c2list[j].c2count,
+								"name": this.ChartsList[i].c2list[j].c2name + " : " + this.ChartsList[i].c2list[j].c2count
+							};
+							ChartsListShow.push(obj);
+						}
+					}
+					this.myChart.hideLoading();
+					this.myChart.setOption({
+						tooltip: {
+						    trigger: 'item',
+						    formatter: '{a} <br/>{b} : {c} ({d}%)'
+						  },
+						  toolbox: {
+						    show: true,
+						    feature: {
+						      mark: { show: true },
+						      dataView: { show: true, readOnly: false },
+						      restore: { show: true },
+						      saveAsImage: { show: true }
+						    }
+						  },
+						  series: [
+						    {
+						      name: 'Area Mode',
+						      type: 'pie',
+						      radius: [20, 140],
+						      center: ['50%', '50%'],
+						      roseType: 'area',
+						      itemStyle: {
+						        borderRadius: 5
+						      },
+						      data: ChartsListShow,
+						      label: {
+						        color: '#ccc'
+						      }
+						    }
+						  ]
+					})
+				}
+			}
+		});
 		var categoryVm = new Vue({
 			el: '.category-lists',
 			data: {
@@ -83,6 +143,7 @@
 					.get('/queryCategory')
 					.then(response => {
 						this.categoryList = response.data;
+						postChartsVm.ChartsList = this.categoryList;
 						this.categoryListNum += response.data.length;
 						for (var i in response.data) {
 							this.categoryListNum += response.data[i].c2list.length;

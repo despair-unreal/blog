@@ -10,10 +10,12 @@
 					<span v-if="sticky==1" class="tk-tag tk-tag-red">置顶</span>
 					<a v-if="indexUrl!=null&&indexUrl!=''" class="tk-nick tk-nick-link" rel="noopener noreferrer"
 						target="_blank" :href="indexUrl">
-						<strong>{{userName}}</strong>
+						<strong v-if="userName!=null&&userName!=''">{{userName}}</strong>
+						<strong v-if="userName==null||userName==''">匿名账户</strong>
 					</a>
 					<a v-if="indexUrl==null||indexUrl==''" class="tk-nick tk-nick-link" rel="noopener noreferrer">
-						<strong>{{userName}}</strong>
+						<strong v-if="userName!=null&&userName!=''">{{userName}}</strong>
+						<strong v-if="userName==null||userName==''">匿名账户</strong>
 					</a>
 					<small class="tk-time">
 						<time :datetime="time" :title="time">{{time}}</time>
@@ -97,7 +99,7 @@
 				</div>
 			</div>
 			<div class="tk-replies tk-replies-expand">
-				<form target="iframe2" method="post" enctype="multipart/form-data" :action="actionurl">
+				<form target="form2" method="post" enctype="multipart/form-data" :action="actionurl">
 					<input type="hidden" name="id" :value="id" />
 					<input type="hidden" name="toNick" :value="userName" />
 					<input type="hidden" name="toId" :value="toid" />
@@ -106,12 +108,12 @@
 						</commentsubmit-component>
 					</div>
 				</form>
-				<iframe name="iframe2" id="form2" style="display:none"></iframe>
+				<iframe name="form2" id="form3" style="display:none"></iframe>
 
-				<div v-for="(item,index) in commentList2" :key="'k'+item.id">
+				<div v-for="(item,index) in commentList2" :key="item.id">
 					<comment2-component :loginstatus="loginstatus" :userinfo="userinfo" :pid="pid" v-bind="item"
 						:username="username" :toid="'c'+item.id"></comment2-component>
-					<form target="iframe2" method="post" enctype="multipart/form-data" :action="actionurl">
+					<form target="form2" method="post" enctype="multipart/form-data" :action="actionurl">
 						<input type="hidden" name="id" :value="id" />
 						<input type="hidden" name="toNick" :value="toNick2" />
 						<input type="hidden" name="toId" :value="toid2" />
@@ -127,6 +129,7 @@
 </template>
 
 <script>
+	var vmthis;
 	module.exports = {
 		props: ["loginstatus", "userinfo", "toid", "indexUrl", "avatarUrl", "userName", "content", "contentImg", "sys",
 			"browser", "time", "id", "actionurl", "username", "sticky", "pid", "email"
@@ -135,7 +138,8 @@
 			return {
 				commentList2: [],
 				toNick2: null,
-				toid2: null
+				toid2: null,
+				vmthis:vmthis
 			}
 		},
 		components: {
@@ -152,7 +156,6 @@
 				$(e.target).closest(".tk-comment").find(".tk-replies>form>#commentSubmit").show();
 			},
 			queryComm: function(that) {
-				console.log(that.id);
 				if (that.username != undefined) {
 					axios
 						.get('/queryboardInner', {
@@ -273,15 +276,17 @@
 
 			}
 		},
+		beforeCreate:function(){
+			vmthis=this;
+		},
 		mounted: function() {
 			if (this.username != undefined) {
 				this.userName = this.username;
 			}
-			var that = this;
-			$("#form2").load(function() {
+			$("#form3").load(function() {
 				var text = $(this).contents().find("body").text(); //获取到的是json的字符串
 				var j = $.parseJSON(text); //json字符串转换成json对象
-				that.queryComm(that);
+				vmthis.commentList2 = j;
 				$("body #commentSubmit").hide();
 				$("body #commentSubmit").find(".tk-input-image").val('');
 				$(".file-msg").html('');
